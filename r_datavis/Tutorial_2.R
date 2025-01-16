@@ -49,8 +49,23 @@ em_scaled = na.omit(em_scaled)
 # Task 7  
 
 master_sig = subset(master, p.adj < 0.05)
-master_sig = subset(master, abs(log2fold) >1))
+master_sig = subset(master, abs(log2fold) >1)
+sig_genes = row.names(master_sig)
 
+# Task 8
+em_symbols_sig = em_symbols[sig_genes,]
+em_scaled_sig = em_scaled[sig_genes,]
 
+# Task 9
+
+tables_names <- list("em_symbols", "em_scaled", "master", "master_sig", "em_symbols_sig", "em_scaled_sig")
+tables <- list(em_symbols, em_scaled, master, master_sig, em_symbols_sig, em_scaled_sig)
+tables_index = c(1:length((tables)))
+
+for (i in tables_index) {
+  filepath = paste("./data/",tables_names[i],sep='')
+  filepath = paste(filepath,".csv",sep='')
+  write.table(tables[i], file=filepath, sep="\t")
+}
 
 

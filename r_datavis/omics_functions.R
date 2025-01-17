@@ -65,3 +65,12 @@ ma_plot_df_table = function(df, p_max = 0.05, log2Fold_threshold = 1, name_colum
     theme(legend.position="none")
   ggp
 }
+
+load_tables = function(de_tables, em, annotations){
+  master = merge(em, annotations,by.x=0,by.y=0)
+  for (de in de_tables) {
+    master = merge(master_temp, de,by.x=1,by.y=0)
+  }
+  return(master)
+  
+}

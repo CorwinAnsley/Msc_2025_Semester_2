@@ -1,4 +1,4 @@
-install.packages("ggplot2")
+#install.packages("ggplot2")
 
 library(ggplot2)
 library(ggrepel)
@@ -11,7 +11,7 @@ em_scaled = read.table("./data/em_scaled.csv", header=TRUE, row.names=1, sep= "\
 master= read.table("./data/master.csv", header=TRUE, row.names=1, sep= "\t")
 master_sig = read.table("./data/master_sig.csv", header=TRUE, row.names=1, sep= "\t")
 em_symbols_sig = read.table("./data/em_symbols_sig.csv", header=TRUE, row.names=1, sep= "\t")
-em_scaled_sig = read.table("./data/em_scaled_sig.csv", header=TRUE, row.names=1, sep= "\t")
+#em_scaled_sig = read.table("./data/em_scaled_sig.csv", header=TRUE, row.names=1, sep= "\t")
 
 # Task 2
 
@@ -37,7 +37,13 @@ em_scaled_sig = read.table("./data/em_scaled_sig.csv", header=TRUE, row.names=1,
   
   ggp
   
-  png("./data/volcano.png", height = 400, width = 400)
-  print(ggp)
-  dev.off()
+  #master$symbol = row.names(master)
+  
+  source("./omics_functions.R")
+  
+  volcano_plot_df_table(master,log2Fold_column = 'log2fold',symbol_labels = FALSE, name_column = 0)
+  ma_plot_df_table(master,log2Fold_column = 'log2fold',symbol_labels = FALSE, name_column = 0)
+  #png("./data/volcano.png", height = 400, width = 400)
+  #print(ggp)
+  #dev.off()
   

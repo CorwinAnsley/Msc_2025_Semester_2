@@ -18,6 +18,16 @@ my_theme = theme(
   axis.title.y = element_text(size=12)
 )
 
+# Helper function to get data for specific gene
+get_gene_data = function(gene, gene_frame, sample_groups) {
+  gene_data = gene_frame[gene,]
+  gene_data = t(gene_data)
+  gene_data = data.frame(gene_data)
+  gene_data$sample_group = sample_groups
+  names(gene_data) = c("expression","sample_group")
+  return (gene_data)
+}
+
 volcano_plot_df_table = function(df, p_max = 0.05, log2Fold_threshold = 1, name_column = "symbol", p_column = 'p.adj', log2Fold_column = 'log2Fold', symbol_labels = TRUE) {
   # adding label to de tables for up and down regulated genes
   df$diffexpr = "NO" 

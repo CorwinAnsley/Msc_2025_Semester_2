@@ -1,6 +1,8 @@
 library(ggplot2)
 library(ggrepel)
 
+source("./omics_functions.R")
+
 ss = read.table("./data/sample_sheet.csv", header=TRUE, sep="\t")
 master= read.table("./data/master.csv", header=TRUE, row.names=1, sep= "\t")
 
@@ -25,10 +27,19 @@ scale_color_manual(values=as.vector(c("darkcyan", "black", "darkred"))) +
 xlab(x_axis_label) +
 ylab(y_axis_label)
 
+
+ggp = pca_graph(em_scaled,ss)
+ggp
+
 #ggp
 
 # Task 3
-ggp = ggplot(master, aes(x = log10(gut_r1+0.01))) + 
-geom_density(colour ='coral', linewidth = 0.5, alpha = 5)
 
+
+ggp = ggplot(master, aes(x = log10(gut_r1+0.01))) + 
+geom_density(colour ='red', fill='coral', linewidth = 0.5, alpha = 0.5)
+
+source("./omics_functions.R")
+
+ggp = expr_density_facets(em_symbols, 3, 3)
 ggp

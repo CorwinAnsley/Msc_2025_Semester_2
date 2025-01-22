@@ -5,7 +5,10 @@ library(ggrepel)
 library("xtable")
 options(xtable.floating=FALSE)
 options(xtable.timestamp="")
-library(crayon)
+#library(crayon)
+
+#install.packages("reshape2")
+library(reshape2)
 
 my_theme = theme(
   plot.title = element_text(size=30),
@@ -73,4 +76,42 @@ load_tables = function(de_tables, em, annotations){
   }
   return(master)
   
+}
+
+pca_graph = function(em_scaled,ss){
+  pca = prcomp(t(as.matrix(sapply(em_scaled,as.numeric))))
+  pca_coordinates = data.frame(pca$x)
+  
+  vars = apply(pca$x, 2, var)
+  prop_x = round(vars["PC1"] / sum(vars),4) * 100
+  prop_y = round(vars["PC2"] / sum(vars),4) * 100
+  x_axis_label = paste("PC1 ", " (",prop_x, "%)",sep="")
+  y_axis_label = paste("PC2 ", " (",prop_y, "%)",sep="")
+  
+  ggp = ggplot(pca_coordinates, aes(x=PC1, y=PC2,col=ss$SAMPLE_GROUP)) +
+    geom_point() +
+    geom_text_repel(aes(label=ss$SAMPLE),show.legend = FALSE) +
+    scale_color_manual(values=as.vector(c("darkcyan", "black", "darkred"))) +
+    xlab(x_axis_label) +
+    ylab(y_axis_label)
+  
+  return(ggp)
+}
+
+expr_density_graph = function(table,sample){
+  ggp = ggplot(table, aes(x = log10(sample+0.01))) + 
+    geom_density(colour ='red', fill='coral', linewidth = 0.5, alpha = 0.5)
+}
+
+
+expr_density_facets = function(table, nrow, ncol){
+  table_melt = melt(table)
+  ggp = ggplot(table_melt, aes(x = log10(value+0.01))) + 
+    geom_density(colour ='red', fill='coral', linewidth = 0.5, alpha = 0.5) +
+    facet_wrap(~variable, nrow=nrow, ncol=ncol) +
+    my_theme +
+    labs(x = "Expression (log10)", y = "Density") +
+    theme( panel.grid = element_blank())
+  
+  return(ggp)
 }

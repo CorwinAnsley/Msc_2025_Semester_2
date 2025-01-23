@@ -10,6 +10,9 @@ options(xtable.timestamp="")
 #install.packages("reshape2")
 library(reshape2)
 
+#install.packages("amap")
+library(amap)
+
 my_theme = theme(
   plot.title = element_text(size=30),
   axis.text.x = element_text(size=8),
@@ -138,5 +141,42 @@ expr_density_facets = function(table, nrow, ncol){
     labs(x = "Expression (log10)", y = "Density") +
     theme( panel.grid = element_blank())
   
+  return(ggp)
+}
+
+plot_heatmap = function(em_table, dist_method = "spearman", cluster_method = "average", reorder_func = "average", by_x = FALSE){
+  hm_matrix = as.matrix(em_table)
+  if (by_x){
+  hm_matrix = t(hm_matrix)
+  }
+  # Get the distances and cluster
+  dist = Dist(hm_matrix,nbproc = 2, method="spearman")
+  cluster = hclust(dist, method="average")
+  
+  # get cluster dendrogram and untangle
+  tree = as.dendrogram(cluster)
+  tree_reorder = reorder(tree,0,FUN=reorder_func)
+  
+  # Get untangled order and reorder the original matrix
+  order = order.dendrogram(tree_reorder)
+  hm_matrix_clustered = hm_matrix[order,]
+  #hm_matrix_clustered = t(hm_matrix_clustered)
+  
+  # melt the matrix
+  hm_matrix_clustered_melt = melt(hm_matrix_clustered)
+  
+  
+  # Create heatmap colour palette
+  pal_colours = c("purple","black","yellow")
+  heatmap_palette = colorRampPalette(pal_colours)(100)
+  
+  ggp = ggplot(hm_matrix_clustered_melt, aes(x=Var2, y=Var1, fill=value)) + 
+    geom_tile() + 
+    scale_fill_gradientn(colours = heatmap_palette) +
+    ylab("") +
+    xlab("") +
+    my_theme +
+    theme(axis.text.y = element_blank(), axis.ticks=element_blank(), legend.title = element_blank(),
+          legend.spacing.x = unit(0.25, 'cm'))
   return(ggp)
 }

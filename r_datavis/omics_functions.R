@@ -19,14 +19,30 @@ my_theme = theme(
 )
 
 # Helper function to get data for specific gene
-get_gene_data = function(gene, gene_frame, sample_groups) {
+get_gene_data = function(gene, gene_frame, sample_groups, group_order=c() ) {
   gene_data = gene_frame[gene,]
   gene_data = t(gene_data)
   gene_data = data.frame(gene_data)
   gene_data$sample_group = sample_groups
-  names(gene_data) = c("expression","sample_group")
+  #names(gene_data) = c("expression","sample_group")
+  
+  #if length(group_order) > 0 {
+  gene_data$sample_group = factor(gene_data$sample_group, levels=group_order)
+  #}
   return (gene_data)
 }
+
+boxplot_facets = function(gene_frame, candidate_genes, sample_groups, nrow, ncol, group_order=c()){
+  genes_to_plot = get_gene_data(candidate_genes,gene_frame,sample_groups,group_order=group_order)
+  top_gene_data_m = melt(genes_to_plot, id.vars='sample_group')
+  
+  ggp = ggplot(top_gene_data_m,aes(x=sample_group,y=value, fill=sample_group)) +
+    geom_boxplot() +
+    facet_wrap(~variable, nrow=nrow, ncol=ncol) +
+    my_theme
+  return(ggp)
+}
+
 
 volcano_plot_df_table = function(df, p_max = 0.05, log2Fold_threshold = 1, name_column = "symbol", p_column = 'p.adj', log2Fold_column = 'log2Fold', symbol_labels = TRUE) {
   # adding label to de tables for up and down regulated genes
@@ -112,7 +128,6 @@ expr_density_graph = function(table,sample){
   ggp = ggplot(table, aes(x = log10(sample+0.01))) + 
     geom_density(colour ='red', fill='coral', linewidth = 0.5, alpha = 0.5)
 }
-
 
 expr_density_facets = function(table, nrow, ncol){
   table_melt = melt(table)

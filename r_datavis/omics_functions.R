@@ -180,3 +180,19 @@ plot_heatmap = function(em_table, dist_method = "spearman", cluster_method = "av
           legend.spacing.x = unit(0.25, 'cm'))
   return(ggp)
 }
+
+heatmap_rug = function(sample_groups){
+  # rug for continuous variable
+  groups_data = as.matrix(as.numeric(as.factor(sample_groups)))
+  groups_data = melt(groups_data)
+  # heatmap
+  colours = c("red","cyan","purple")
+  ggp = ggplot(groups_data, aes(x = Var1, y = Var2, fill = value)) + 
+    geom_tile() + 
+    scale_fill_gradientn(colours = colours) +
+    geom_tile(linetype="blank") +
+    labs(x = "", y = "") +
+    theme(legend.position="none", legend.title = element_blank(), axis.text.x = element_blank(), axis.text.y =
+            element_blank(), axis.ticks=element_blank())
+  return(ggp)
+}

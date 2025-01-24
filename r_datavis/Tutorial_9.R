@@ -17,5 +17,5 @@ source("./omics_functions.R")
 
 #ggp = plot_heatmap(em_scaled_sig)
 
-ggp =  heatmap_rug(ss$SAMPLE_GROUP)
+ggp = heatmap_rug(ss$SAMPLE_GROUP)
 ggp

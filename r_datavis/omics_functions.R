@@ -46,7 +46,6 @@ boxplot_facets = function(gene_frame, candidate_genes, sample_groups, nrow, ncol
   return(ggp)
 }
 
-
 volcano_plot_df_table = function(df, p_max = 0.05, log2Fold_threshold = 1, name_column = "symbol", p_column = 'p.adj', log2Fold_column = 'log2Fold', symbol_labels = TRUE) {
   # adding label to de tables for up and down regulated genes
   df$diffexpr = "NO" 
@@ -195,4 +194,16 @@ heatmap_rug = function(sample_groups){
     theme(legend.position="none", legend.title = element_blank(), axis.text.x = element_blank(), axis.text.y =
             element_blank(), axis.ticks=element_blank())
   return(ggp)
+}
+
+get_enriched_genes_ora = function(ora_results){
+  gene_sets = ora_results$geneID
+  description = ora_results $Description
+  p.adj = ora_results$p.adjust
+  
+  ora_results_table = data.frame(cbind(description,gene_sets,  p.adj),row.names = 1)
+  #return(ora_results_table)
+  enriched_gene_set = as.character(ora_results_table [1,1])
+  candidate_genes = unlist(strsplit(enriched_gene_set, "/"))
+  return(candidate_genes)
 }

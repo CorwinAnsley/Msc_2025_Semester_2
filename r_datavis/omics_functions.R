@@ -13,6 +13,11 @@ library(reshape2)
 #install.packages("amap")
 library(amap)
 
+library(STRINGdb)
+
+library(clusterProfiler)
+library(org.Mm.eg.db)
+
 my_theme = theme(
   plot.title = element_text(size=30),
   axis.text.x = element_text(size=8),
@@ -196,14 +201,42 @@ heatmap_rug = function(sample_groups){
   return(ggp)
 }
 
-get_enriched_genes_ora = function(ora_results){
+# Returns the results of an ORA on given list of genes
+get_ora_results = function(genes){
+  # convert gene symbols to entrezid
+  genes_entrez = bitr(genes, fromType = "SYMBOL", toType = "ENTREZID", OrgDb = org.Mm.eg.db)
+  
+  # run an ORA and store the results
+  ora_results = enrichGO(gene = genes_entrez$ENTREZID, OrgDb = org.Mm.eg.db, readable = T, ont =
+                           "ALL", pvalueCutoff = 0.05, qvalueCutoff = 0.10)
+  return(ora_results)
+}
+
+# Takes ora results and converts to data frame
+convert_ora_results_to_table =(ora_results) {
   gene_sets = ora_results$geneID
   description = ora_results $Description
-  p.adj = ora_results$p.adjust
+  p_adj = ora_results$p.adjust
   
-  ora_results_table = data.frame(cbind(description,gene_sets,  p.adj),row.names = 1)
-  #return(ora_results_table)
-  enriched_gene_set = as.character(ora_results_table [1,1])
+  ora_results_table = data.frame(cbind(description, gene_sets,  p_adj),row.names = 1)
+  return(ora_results_table)
+}
+
+# Takes gsea results and convets to data frame
+convert_gsea_results_to_table = function(gsea_results){
+  description = gse_results$Description
+  p_adj = gse_results$p.adjust
+  NES = gse_results$NES
+  gene_sets = gse_results$core_enrichment
+  
+  gsea_results_table = data.frame(cbind(description, gene_sets, p_adj, NES),row.names = 1)
+  return(gsea_results_table)
+}
+
+# Returns list of genes from ora/gsea results table
+get_enriched_genes_from_table = function(results_table, row_num){
+  enriched_gene_set = as.character(results_table [row_num,1])
   candidate_genes = unlist(strsplit(enriched_gene_set, "/"))
   return(candidate_genes)
 }
+

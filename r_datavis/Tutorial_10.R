@@ -2,6 +2,9 @@
 #BiocManager::install("clusterProfiler")
 #BiocManager::install("org.Mm.eg.db")
 
+#BiocManager::install("STRINGdb")
+library(STRINGdb)
+
 library(clusterProfiler)
 library(org.Mm.eg.db)
 
@@ -63,16 +66,32 @@ ora_results = enrichGO(gene = sig_genes_entrez$ENTREZID, OrgDb = org.Mm.eg.db, r
 
 source("./omics_functions.R")
 
-e_genes = get_enriched_genes_ora(ora_results)
+#e_genes = get_enriched_genes_ora(ora_results)
+e_genes = get_enriched_genes_gsea(gsea_results)
+
+e_genes_scaled = em_scaled[e_genes,]
+e_genes_scaled = na.omit(e_genes_scaled)
 #\print(length(e_genes))
 
 ggp = boxplot_facets(em_scaled, e_genes, ss$SAMPLE_GROUP, 5, 26, group_order=c('gut','duct','node'))
 ggp
 
-e_genes_scaled = em_scaled[e_genes,]
-e_genes_scaled = na.omit(e_genes_scaled)
-
 ggp = plot_heatmap(e_genes_scaled)
 ggp
+
+e_genes_table = data.frame(e_genes)
+names(e_genes_table) = "gene"
+
+# load the database, 9606 is human, 10090 is mouse. Google the function for more information.
+string_db = STRINGdb$new( version="11.5", species=9606, score_threshold=200,
+                          network_type="full", input_directory="")
+
+# map our genes to the database
+# "gene" means gene symbols. We could put "ENSEMBL" here if needed.
+string_mapped = string_db$map(e_genes_table, "gene", removeUnmappedRows = TRUE )
+
+# now we plot
+string_db$plot_network(string_mapped)
+
 
 

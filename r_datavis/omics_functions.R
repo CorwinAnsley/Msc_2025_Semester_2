@@ -26,6 +26,32 @@ my_theme = theme(
   axis.title.y = element_text(size=12)
 )
 
+# Returns some tables from list of filepaths
+create_tables = function(em_filepath, sep = '\t'){
+  em = read.table(em_filepath, header=TRUE, row.names=1, sep=sep)
+  de = read.table("./data/de_duct_vs_gut.csv", header=TRUE, row.names=1, sep=sep)
+  annotations = read.table("./data/annotations.csv", header=TRUE, row.names=1, sep=sep)
+  
+  master = merge(em, annotations,by.x=0,by.y=0)
+  master = merge(master, de,by.x=1,by.y=0)
+  row.names(master) = master[,'name']
+  names(master)[1] = 'ensemble_id'
+  master = na.omit(master)
+  #master = master[,-14]
+  
+  #master_sig = subset(master, p.adj < 0.05)
+  #master_sig = subset(master, abs(log2fold) >1)
+  return(master)
+}
+
+load_tables = function(de_tables, em, annotations){
+  master = merge(em, annotations,by.x=0,by.y=0)
+  for (de in de_tables) {
+    master = merge(master_temp, de,by.x=1,by.y=0)
+  }
+  return(master)
+  
+}
 # Helper function to get data for specific gene
 get_gene_data = function(gene, gene_frame, sample_groups, group_order=c() ) {
   gene_data = gene_frame[gene,]
@@ -100,15 +126,6 @@ ma_plot_df_table = function(df, p_max = 0.05, log2Fold_threshold = 1, name_colum
     scale_color_manual(values=c("darkcyan", "black", "darkred")) +
     theme(legend.position="none")
   ggp
-}
-
-load_tables = function(de_tables, em, annotations){
-  master = merge(em, annotations,by.x=0,by.y=0)
-  for (de in de_tables) {
-    master = merge(master_temp, de,by.x=1,by.y=0)
-  }
-  return(master)
-  
 }
 
 pca_graph = function(em_scaled,ss){

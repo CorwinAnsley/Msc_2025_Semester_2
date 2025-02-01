@@ -1,3 +1,5 @@
+#install.packages("ggplot2")
+#install.packages("ggrepel")
 library(ggplot2)
 library(ggrepel)
 
@@ -13,6 +15,7 @@ library(reshape2)
 #install.packages("amap")
 library(amap)
 
+install.packages("STRINGdb")
 library(STRINGdb)
 
 library(clusterProfiler)

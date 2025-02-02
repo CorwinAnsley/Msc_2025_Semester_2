@@ -12,6 +12,9 @@ de_tables = list(de_senes_vs_prolf, de_mtd_vs_senes, de_mtd_vs_prolif)
 
 master = load_tables(de_tables, em, annotations)
 
+em_symbols = master[,-c(11:17)]
+em_symbols = em_symbols[,-1]
+
 ggp = expr_density_facets(em_symbols, 3, 3)
 ggp
 #names(master)['p'] = 'p_1'

@@ -40,6 +40,7 @@ my_theme = theme(
   axis.title.y = element_text(size=12)
 )
 
+# Returns a master table colating the data from provided em, annotations and list of de tables
 load_tables = function(de_tables, em, annotations, symbol_column = 'SYMBOL'){
   master = merge(em, annotations,by.x=0,by.y=0)
   i = 1
@@ -53,6 +54,7 @@ load_tables = function(de_tables, em, annotations, symbol_column = 'SYMBOL'){
   master= na.omit(master)
   row.names(master) = master[,symbol_column]
   names(master)[1] = 'ensemble_id'
+  master = master[,-which(names(master) == symbol_column)]
   return(master)
 }
 

@@ -40,7 +40,6 @@ my_theme = theme(
   axis.title.y = element_text(size=12)
 )
 
-
 load_tables = function(de_tables, em, annotations, symbol_column = 'SYMBOL'){
   master = merge(em, annotations,by.x=0,by.y=0)
   i = 1

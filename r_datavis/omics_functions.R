@@ -1,21 +1,32 @@
 #install.packages("ggplot2")
 #install.packages("ggrepel")
+
+#install.packages("xtable")
+
+#install.packages("reshape2")
+
+#install.packages("amap")
+
+#install.packages("BiocManager")
+#BiocManager::install("clusterProfiler")
+#install.packages("stringi")
+#BiocManager::install("org.Mm.eg.db")
+
+#BiocManager::install("STRINGdb")
+
 library(ggplot2)
 library(ggrepel)
 
-#install.packages("xtable")
+
 library("xtable")
 options(xtable.floating=FALSE)
 options(xtable.timestamp="")
-#library(crayon)
 
-#install.packages("reshape2")
+
 library(reshape2)
 
-#install.packages("amap")
 library(amap)
 
-install.packages("STRINGdb")
 library(STRINGdb)
 
 library(clusterProfiler)
@@ -29,32 +40,23 @@ my_theme = theme(
   axis.title.y = element_text(size=12)
 )
 
-# Returns some tables from list of filepaths
-create_tables = function(em_filepath, sep = '\t'){
-  em = read.table(em_filepath, header=TRUE, row.names=1, sep=sep)
-  de = read.table("./data/de_duct_vs_gut.csv", header=TRUE, row.names=1, sep=sep)
-  annotations = read.table("./data/annotations.csv", header=TRUE, row.names=1, sep=sep)
-  
+
+load_tables = function(de_tables, em, annotations, symbol_column = 'SYMBOL'){
   master = merge(em, annotations,by.x=0,by.y=0)
-  master = merge(master, de,by.x=1,by.y=0)
-  row.names(master) = master[,'name']
+  i = 1
+  for (de in de_tables) {
+    master = merge(master,de,by.x=1,by.y=0)
+    colnames(master)[which(names(master) == "p")] = paste("p_",as.character(i),sep='')
+    colnames(master)[which(names(master) == "p.adj")] = paste("p.adj_",as.character(i),sep='')
+    colnames(master)[which(names(master) == "log2fold")] = paste("log2fold_",as.character(i),sep='')
+    i = i + 1
+  }
+  master= na.omit(master)
+  row.names(master) = master[,symbol_column]
   names(master)[1] = 'ensemble_id'
-  master = na.omit(master)
-  #master = master[,-14]
-  
-  #master_sig = subset(master, p.adj < 0.05)
-  #master_sig = subset(master, abs(log2fold) >1)
   return(master)
 }
 
-load_tables = function(de_tables, em, annotations){
-  master = merge(em, annotations,by.x=0,by.y=0)
-  for (de in de_tables) {
-    master = merge(master_temp, de,by.x=1,by.y=0)
-  }
-  return(master)
-  
-}
 # Helper function to get data for specific gene
 get_gene_data = function(gene, gene_frame, sample_groups, group_order=c() ) {
   gene_data = gene_frame[gene,]
@@ -233,7 +235,7 @@ get_ora_results = function(genes){
 }
 
 # Takes ora results and converts to data frame
-convert_ora_results_to_table =(ora_results) {
+convert_ora_results_to_table = function(ora_results) {
   gene_sets = ora_results$geneID
   description = ora_results $Description
   p_adj = ora_results$p.adjust

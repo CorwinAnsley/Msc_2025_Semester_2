@@ -83,13 +83,15 @@ boxplot_facets = function(gene_frame, candidate_genes, sample_groups, nrow, ncol
   return(ggp)
 }
 
-volcano_plot_df_table = function(df, p_max = 0.05, log2Fold_threshold = 1, name_column = "symbol", p_column = 'p.adj', log2Fold_column = 'log2Fold', symbol_labels = TRUE) {
+volcano_plot_df_table = function(df, p_max = 0.05, log2Fold_threshold = 1, name_column = "symbol", p_column = 'p.adj', log2Fold_column = 'log2Fold', symbol_labels = TRUE, facets = TRUE) {
   # adding label to de tables for up and down regulated genes
   df$diffexpr = "NO" 
   df$symbol = row.names(df)
-  #df$log2Fold = df[log2Fold_column]
+  df$log2fold = df[log2Fold_column]
+  df$p.adj = df[p_column]
   df$diffexpr[df[log2Fold_column] > log2Fold_threshold & df[p_column] < p_max] = "UP"
   df$diffexpr[df[log2Fold_column] < -log2Fold_threshold  & df[p_column] < p_max] = "DOWN"
+  df= na.omit(df)
   
   df_top_ten = df[1:10,]
   
@@ -108,7 +110,12 @@ volcano_plot_df_table = function(df, p_max = 0.05, log2Fold_threshold = 1, name_
     geom_hline(yintercept=-log10(p_max), col="red") +
     my_theme
     #theme(legend.position="none")
-  ggp
+  
+  #if (facets) {
+  #  ggp = ggp +
+  #    facet_wrap(~variable) 
+  #}
+  return(ggp)
 }
 
 ma_plot_df_table = function(df, p_max = 0.05, log2Fold_threshold = 1, name_column = "symbol", p_column = 'p.adj', log2Fold_column = 'log2Fold', symbol_labels = TRUE) {
@@ -148,6 +155,7 @@ pca_graph = function(em_scaled,ss){
     geom_point() +
     geom_text_repel(aes(label=ss$SAMPLE),show.legend = FALSE) +
     scale_color_manual(values=as.vector(c("darkcyan", "black", "darkred"))) +
+    labs(color = "Sample Group\n") +
     xlab(x_axis_label) +
     ylab(y_axis_label)
   

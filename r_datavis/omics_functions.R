@@ -8,11 +8,11 @@
 #install.packages("amap")
 
 #install.packages("BiocManager")
-#BiocManager::install("clusterProfiler")
 #install.packages("stringi")
-#BiocManager::install("org.Mm.eg.db")
+BiocManager::install("clusterProfiler")
+BiocManager::install("org.Mm.eg.db")
 
-#BiocManager::install("STRINGdb")
+BiocManager::install("STRINGdb")
 
 library(ggplot2)
 library(ggrepel)

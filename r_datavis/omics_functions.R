@@ -9,8 +9,8 @@
 
 #install.packages("BiocManager")
 #install.packages("stringi")
-BiocManager::install("clusterProfiler")
-BiocManager::install("org.Mm.eg.db")
+#BiocManager::install("clusterProfiler")
+#BiocManager::install("org.Mm.eg.db")
 
 BiocManager::install("STRINGdb")
 

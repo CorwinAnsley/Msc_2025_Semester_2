@@ -7,7 +7,7 @@ de_senes_vs_prolif = read.table("./data/DE_Senes_vs_Prolif.csv", header=TRUE, ro
 annotations = read.table("./data/Human_Background_GRCh38.p13.csv", header=TRUE, row.names=1, sep= "\t")
 ss = read.table("./data/sample_sheet.csv", header=TRUE, sep="\t")
 
-de_mtd_vs_prolif = 
+#de_mtd_vs_prolif = 
 
 de_tables = list(de_senes_vs_prolif, de_mtd_vs_senes, de_mtd_vs_prolif)
 

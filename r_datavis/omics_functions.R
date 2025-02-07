@@ -12,7 +12,7 @@
 #BiocManager::install("clusterProfiler")
 #BiocManager::install("org.Mm.eg.db")
 
-BiocManager::install("STRINGdb")
+#BiocManager::install("STRINGdb")
 
 library(ggplot2)
 library(ggrepel)
@@ -51,7 +51,7 @@ load_tables = function(de_tables, em, annotations, symbol_column = 'SYMBOL'){
     colnames(master)[which(names(master) == "log2fold")] = paste("log2fold_",as.character(i),sep='')
     i = i + 1
   }
-  master= na.omit(master)
+  master = na.omit(master)
   row.names(master) = master[,symbol_column]
   names(master)[1] = 'ensemble_id'
   master = master[,-which(names(master) == symbol_column)]
@@ -151,7 +151,7 @@ pca_graph = function(em_scaled,ss){
   x_axis_label = paste("PC1 ", " (",prop_x, "%)",sep="")
   y_axis_label = paste("PC2 ", " (",prop_y, "%)",sep="")
   
-  ggp = ggplot(pca_coordinates, aes(x=PC1, y=PC2,col=ss$SAMPLE_GROUP)) +
+  ggp = ggplot(pca_coordinates, aes(x=PC1, y=PC2, col=ss$SAMPLE_GROUP)) +
     geom_point() +
     geom_text_repel(aes(label=ss$SAMPLE),show.legend = FALSE) +
     scale_color_manual(values=as.vector(c("darkcyan", "black", "darkred"))) +

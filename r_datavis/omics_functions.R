@@ -83,7 +83,13 @@ boxplot_facets = function(gene_frame, candidate_genes, sample_groups, nrow, ncol
   return(ggp)
 }
 
-volcano_plot_df_table = function(df, p_max = 0.05, log2Fold_threshold = 1, name_column = "symbol", p_column = 'p.adj', log2Fold_column = 'log2Fold', symbol_labels = TRUE, facets = TRUE) {
+volcano_plot_df_table = function(df, p_max = 0.05, 
+                                 log2Fold_threshold = 1, 
+                                 name_column = "symbol", 
+                                 p_column = 'p.adj', 
+                                 log2Fold_column = 'log2Fold', 
+                                 symbol_labels = TRUE, 
+                                 facets = TRUE) {
   # adding label to de tables for up and down regulated genes
   df$diffexpr = "NO" 
   df$symbol = row.names(df)
@@ -115,7 +121,8 @@ volcano_plot_df_table = function(df, p_max = 0.05, log2Fold_threshold = 1, name_
   #  ggp = ggp +
   #    facet_wrap(~variable) 
   #}
-  return(ggp)
+  #return(ggp)
+  return(df)
 }
 
 ma_plot_df_table = function(df, p_max = 0.05, log2Fold_threshold = 1, name_column = "symbol", p_column = 'p.adj', log2Fold_column = 'log2Fold', symbol_labels = TRUE) {
@@ -151,11 +158,11 @@ pca_graph = function(em_scaled,ss){
   x_axis_label = paste("PC1 ", " (",prop_x, "%)",sep="")
   y_axis_label = paste("PC2 ", " (",prop_y, "%)",sep="")
   
-  ggp = ggplot(pca_coordinates, aes(x=PC1, y=PC2, col=ss$SAMPLE_GROUP)) +
+  ggp = ggplot(pca_coordinates, aes(x=PC1, y=PC2, colour=ss$SAMPLE_GROUP)) +
     geom_point() +
-    geom_text_repel(aes(label=ss$SAMPLE),show.legend = FALSE) +
-    scale_color_manual(values=as.vector(c("darkcyan", "black", "darkred"))) +
-    labs(color = "Sample Group\n") +
+    #geom_text_repel(aes(label=ss$SAMPLE),show.legend = FALSE) +
+    #scale_color_manual(values=as.vector(c("darkcyan", "black", "darkred"))) +
+    #labs(color = "Sample Group\n") +
     xlab(x_axis_label) +
     ylab(y_axis_label)
   

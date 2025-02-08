@@ -11,7 +11,8 @@ ss = read.table("./data/sample_sheet.csv", header=TRUE, sep="\t")
 #de_mtd_vs_prolif = na.omit(de_mtd_vs_prolif)
 #de_mtd_vs_prolif = na.omit(de_mtd_vs_prolif)
 
-de_tables = list(de_senes_vs_prolif, de_mtd_vs_senes, de_mtd_vs_prolif)
+#de_tables = list(de_senes_vs_prolif, de_mtd_vs_senes, de_mtd_vs_prolif)
+de_tables = list(de_senes_vs_prolif)
 
 master = load_tables(de_tables, em, annotations)
 
@@ -23,10 +24,11 @@ em_scaled = na.omit(em_scaled)
 ggp = expr_density_facets(em, 3, 3)
 #ggsave("./plots/expr_density.pdf")
 
-source("./omics_functions.R")
+
 ggp = pca_graph(em_scaled, ss)
 #ggsave("./plots/pca.pdf")
 ggp
 
-test_df = volcano_plot_df_table(master, p_column = 'p.adj_1', log2Fold_column = 'log2fold_1')
+source("./omics_functions.R")
+ggp = volcano_plot_df_table(master, p_column = 'p.adj_1', log2Fold_column = 'log2fold_1')
 ggp

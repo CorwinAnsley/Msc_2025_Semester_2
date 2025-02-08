@@ -36,9 +36,9 @@ my_theme = theme(
   plot.title = element_text(size=30),
   axis.text.x = element_text(size=8),
   axis.text.y = element_text(size=8),
-  axis.title.x = element_text(size=12),
-  axis.title.y = element_text(size=12)
-)
+  axis.title.x = element_text(size=10),
+  axis.title.y = element_text(size=10)
+) + theme_minimal()
 
 # Returns a master table colating the data from provided em, annotations and list of de tables
 load_tables = function(de_tables, em, annotations, symbol_column = 'SYMBOL'){
@@ -93,37 +93,36 @@ volcano_plot_df_table = function(df, p_max = 0.05,
   # adding label to de tables for up and down regulated genes
   df$diffexpr = "NO" 
   df$symbol = row.names(df)
-  df$log2fold = df[log2Fold_column]
-  df$p.adj = df[p_column]
+  df['log2fold'] = df[log2Fold_column]
+  df['p.adj'] = df[p_column]
   df$diffexpr[df[log2Fold_column] > log2Fold_threshold & df[p_column] < p_max] = "UP"
   df$diffexpr[df[log2Fold_column] < -log2Fold_threshold  & df[p_column] < p_max] = "DOWN"
-  df= na.omit(df)
   
-  df_top_ten = df[1:10,]
+  sorted_order = order(df[,'p.adj'], decreasing=FALSE)
+  df = df[sorted_order,]
   
-  # adding name labels for the significant genes
-  df$delabel = NA
-  if (symbol_labels) {
-    df$delabel[df$diffexpr != "NO"] = df$symbol[df$diffexpr != "NO"]
-  }
+  df_sig_up = subset(df, p.adj < 0.05 & log2fold > 1)
+  df_sig_down = subset(df, p.adj < 0.05 & log2fold < -1)#
+  
+  df_up_top5 = df_sig_up[1:5,]
+  df_down_top5 = df_sig_down[1:5,]
   
   ggp = ggplot(data=df, aes(x=log2fold, y=-log10(p.adj), col=diffexpr, label=symbol)) + 
     geom_point() +
-    theme_minimal() +
-    geom_text_repel(data = df_top_ten, max.overlaps=100, show.legend = FALSE) +
+    #theme_minimal() +
+    geom_text_repel(data = df_up_top5, max.overlaps=100, show.legend = FALSE) +
+    geom_text_repel(data = df_down_top5, max.overlaps=100, show.legend = FALSE) +
     scale_color_manual(values=c("darkcyan", "black", "darkred"), labels=c("Down-regulated","Non-significant", "Up-regulated"),name="") +
     geom_vline(xintercept=c(-log2Fold_threshold , log2Fold_threshold ), col="red") +
     geom_hline(yintercept=-log10(p_max), col="red") +
-    my_theme
-    #theme(legend.position="none")
+    my_theme 
   
-  #if (facets) {
-  #  ggp = ggp +
-  #    facet_wrap(~variable) 
-  #}
-  #return(ggp)
-  return(df)
+
+  return(ggp)
+  #return(df)
 }
+
+volvano_plot_facets = function()
 
 ma_plot_df_table = function(df, p_max = 0.05, log2Fold_threshold = 1, name_column = "symbol", p_column = 'p.adj', log2Fold_column = 'log2Fold', symbol_labels = TRUE) {
   # adding label to de tables for up and down regulated genes
@@ -160,9 +159,9 @@ pca_graph = function(em_scaled,ss){
   
   ggp = ggplot(pca_coordinates, aes(x=PC1, y=PC2, colour=ss$SAMPLE_GROUP)) +
     geom_point() +
-    #geom_text_repel(aes(label=ss$SAMPLE),show.legend = FALSE) +
-    #scale_color_manual(values=as.vector(c("darkcyan", "black", "darkred"))) +
-    #labs(color = "Sample Group\n") +
+    geom_text_repel(aes(label=ss$SAMPLE),show.legend = FALSE) +
+    scale_color_manual(values=as.vector(c("darkcyan", "black", "darkred"))) +
+    labs(color = "Sample Group\n") +
     xlab(x_axis_label) +
     ylab(y_axis_label)
   

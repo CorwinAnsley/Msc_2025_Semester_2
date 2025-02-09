@@ -58,6 +58,16 @@ load_tables = function(de_tables, em, annotations, symbol_column = 'SYMBOL'){
   return(master)
 }
 
+# Returns a list of sig genes for given p (should be adjusted) and log2fold column
+get_sig_genes = function(master, p_column, log2fold_column) {
+  master['p.adj'] = master[p_column]
+  master['log2fold'] = master[log2fold_column]
+  master_sig = subset(master, p.adj < 0.05)
+  master_sig = subset(master, abs(log2fold) >1)
+  sig_genes = row.names(master_sig)
+  return(sig_genes)
+}
+
 # Helper function to get data for specific gene
 get_gene_data = function(gene, gene_frame, sample_groups, group_order=c() ) {
   gene_data = gene_frame[gene,]
@@ -105,19 +115,12 @@ volcano_plot_df_table = function(df, p_max = 0.05,
   
   df_up_top5 = df_sig_up[1:5,]
   df_down_top5 = df_sig_down[1:5,]
-  df$delabel = ''
-  
-  for (sym in df_up_top5$symbol){
-    df$delabel[df$symbol == sym] = sym
-  }
-  #df$delabel[df$symbol %in% df_up_top5$symbol] = df$symbol#[df$symbol %in% df_up_top5$symbol] #df_up_top5$symbol #df$symbol[df$symbol == df_up_top5$symbol]
-  
-  ggp = ggplot(data=df, aes(x=log2fold, y=-log10(p.adj), col=diffexpr, label=delabel)) + 
+
+  ggp = ggplot(data=df, aes(x=log2fold, y=-log10(p.adj), col=diffexpr, label=symbol)) + 
     geom_point() +
     #theme_minimal() +
-    #geom_text_repel(data = df_up_top5, max.overlaps=100, show.legend = FALSE) +
-    #geom_text_repel(data = df_down_top5, max.overlaps=100, show.legend = FALSE) +
-    geom_text_repel(aes(label=format(delabel))) +
+    geom_text_repel(data = df_up_top5, max.overlaps=100, show.legend = FALSE) +
+    geom_text_repel(data = df_down_top5, max.overlaps=100, show.legend = FALSE) +
     scale_color_manual(values=c("darkcyan", "black", "darkred"), labels=c("Down-regulated","Non-significant", "Up-regulated"),name="") +
     geom_vline(xintercept=c(-log2Fold_threshold , log2Fold_threshold ), col="red") +
     geom_hline(yintercept=-log10(p_max), col="red") +
@@ -209,12 +212,17 @@ expr_density_facets = function(table, nrow, ncol){
 }
 
 plot_heatmap = function(em_table, dist_method = "spearman", cluster_method = "average", reorder_func = "average", by_x = FALSE){
+  em_taBLE = na.omit(em_table)
+  
   hm_matrix = as.matrix(em_table)
   if (by_x){
   hm_matrix = t(hm_matrix)
   }
+  hm_matrix = na.omit(hm_matrix)
   # Get the distances and cluster
   dist = Dist(hm_matrix,nbproc = 2, method="spearman")
+  #return(dist)
+  dist = na.omit(dist)
   cluster = hclust(dist, method="average")
   
   # get cluster dendrogram and untangle
@@ -256,8 +264,13 @@ heatmap_rug = function(sample_groups){
     scale_fill_gradientn(colours = colours) +
     geom_tile(linetype="blank") +
     labs(x = "", y = "") +
+    my_theme +
     theme(legend.position="none", legend.title = element_blank(), axis.text.x = element_blank(), axis.text.y =
-            element_blank(), axis.ticks=element_blank())
+            element_blank(), axis.ticks=element_blank(),
+            panel.grid.major = element_blank(),
+            panel.grid.minor = element_blank(),
+            panel.border = element_blank(),
+            panel.background = element_blank())
   return(ggp)
 }
 

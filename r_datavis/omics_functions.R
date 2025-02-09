@@ -88,8 +88,7 @@ volcano_plot_df_table = function(df, p_max = 0.05,
                                  name_column = "symbol", 
                                  p_column = 'p.adj', 
                                  log2Fold_column = 'log2Fold', 
-                                 symbol_labels = TRUE, 
-                                 facets = TRUE) {
+                                 symbol_labels = TRUE) {
   # adding label to de tables for up and down regulated genes
   df$diffexpr = "NO" 
   df$symbol = row.names(df)
@@ -106,12 +105,19 @@ volcano_plot_df_table = function(df, p_max = 0.05,
   
   df_up_top5 = df_sig_up[1:5,]
   df_down_top5 = df_sig_down[1:5,]
+  df$delabel = ''
   
-  ggp = ggplot(data=df, aes(x=log2fold, y=-log10(p.adj), col=diffexpr, label=symbol)) + 
+  for (sym in df_up_top5$symbol){
+    df$delabel[df$symbol == sym] = sym
+  }
+  #df$delabel[df$symbol %in% df_up_top5$symbol] = df$symbol#[df$symbol %in% df_up_top5$symbol] #df_up_top5$symbol #df$symbol[df$symbol == df_up_top5$symbol]
+  
+  ggp = ggplot(data=df, aes(x=log2fold, y=-log10(p.adj), col=diffexpr, label=delabel)) + 
     geom_point() +
     #theme_minimal() +
-    geom_text_repel(data = df_up_top5, max.overlaps=100, show.legend = FALSE) +
-    geom_text_repel(data = df_down_top5, max.overlaps=100, show.legend = FALSE) +
+    #geom_text_repel(data = df_up_top5, max.overlaps=100, show.legend = FALSE) +
+    #geom_text_repel(data = df_down_top5, max.overlaps=100, show.legend = FALSE) +
+    geom_text_repel(aes(label=format(delabel))) +
     scale_color_manual(values=c("darkcyan", "black", "darkred"), labels=c("Down-regulated","Non-significant", "Up-regulated"),name="") +
     geom_vline(xintercept=c(-log2Fold_threshold , log2Fold_threshold ), col="red") +
     geom_hline(yintercept=-log10(p_max), col="red") +
@@ -122,7 +128,24 @@ volcano_plot_df_table = function(df, p_max = 0.05,
   #return(df)
 }
 
-volvano_plot_facets = function()
+volvano_plot_facets = function(df, p_max = 0.05, 
+                               log2Fold_threshold = 1, 
+                               name_column = "symbol", 
+                               p_columns = c('p.adj'), 
+                               log2Fold_columns = c('log2Fold'), 
+                               symbol_labels = TRUE) {
+  
+  plot_df = data.frame(symbol=character(),
+                       group=character(),
+                       diffexpr=character(), 
+                       log2fold=numeric(),
+                       p.adj=numeric(),
+                       stringsAsFactors=FALSE)
+  
+  for (i in 1:length(p_columns)) {
+    
+  }
+}
 
 ma_plot_df_table = function(df, p_max = 0.05, log2Fold_threshold = 1, name_column = "symbol", p_column = 'p.adj', log2Fold_column = 'log2Fold', symbol_labels = TRUE) {
   # adding label to de tables for up and down regulated genes

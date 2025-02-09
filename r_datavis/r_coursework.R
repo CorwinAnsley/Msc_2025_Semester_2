@@ -63,9 +63,10 @@ ggsave("./plots/heatmap_mtd_vs_senes.pdf", width = 9, height = 9)
 ggp = plot_heatmap(em_scaled_sig_mtd_vs_prolif)
 ggsave("./plots/heatmap_mtd_vs_prolif.pdf", width = 9, height = 9)
 
-ggp
-
 # Create heatmap rug
 ggp = heatmap_rug(ss$SAMPLE_GROUP)
-ggp
-ggsave("./plots/heatmap.pdf", width = 9, height = 1)
+ggsave("./plots/heatmap_rug.pdf", width = 9, height = 1)
+
+# Get ORA results
+ora_results = get_ora_results(sig_genes_senes_vs_prolif)
+ora_results_table = convert_ora_results_to_table(ora_results)

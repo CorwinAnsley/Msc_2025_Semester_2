@@ -30,9 +30,9 @@ em_scaled = data.frame(t(scale(data.frame(t(em_symbols)))))
 em_scaled = na.omit(em_scaled)
 
 
-sig_genes_senes_vs_prolif = get_sig_genes(master, 'p.adj_1', 'log2fold_1')
-sig_genes_mtd_vs_senes = get_sig_genes(master, 'p.adj_2', 'log2fold_2')
-sig_genes_mtd_vs_prolif = get_sig_genes(master, 'p.adj_3', 'log2fold_3')
+sig_genes_senes_vs_prolif = get_sig_genes(master, 'p.adj_senes_vs_prolif', 'log2fold_senes_vs_prolif')
+sig_genes_mtd_vs_senes = get_sig_genes(master, 'p.adj_mtd_vs_senes', 'log2fold_mtd_vs_senes')
+sig_genes_mtd_vs_prolif = get_sig_genes(master, 'p.adj_mtd_vs_prolif', 'log2fold_mtd_vs_prolif')
 all_sig_genes = c(sig_genes_senes_vs_prolif, sig_genes_mtd_vs_senes, sig_genes_mtd_vs_prolif)
 all_sig_genes = unique(all_sig_genes)
 

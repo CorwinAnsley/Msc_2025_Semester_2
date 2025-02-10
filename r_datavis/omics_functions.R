@@ -34,10 +34,10 @@ library(org.Mm.eg.db)
 
 my_theme = theme(
   plot.title = element_text(size=30),
-  axis.text.x = element_text(size=8),
-  axis.text.y = element_text(size=8),
-  axis.title.x = element_text(size=10),
-  axis.title.y = element_text(size=10),
+  axis.text.x = element_text(size=12),
+  axis.text.y = element_text(size=12),
+  axis.title.x = element_text(size=16),
+  axis.title.y = element_text(size=16),
   legend.title = element_blank()
 ) + theme_minimal()
 
@@ -340,7 +340,7 @@ plot_signature = function(gene_list, em_scaled, ss, signature_name)
   ggp = plot_heatmap(em_scaled_signature_1)
   heatmap_filename = paste("./plots/heatmap_",signature_name,sep='')
   heatmap_filename = paste(heatmap_filename,".pdf",sep='')
-  ggsave(heatmap_filename, width = 9, height = 9)
+  ggsave(heatmap_filename, width = 5, height = 5)
   
   #ggp = make_metagene_boxplot(gene_list, em_scaled, groups)
   #save_plot(ggp, …)
@@ -348,7 +348,7 @@ plot_signature = function(gene_list, em_scaled, ss, signature_name)
   ggp = metagene_boxplot(em_scaled_signature_1, ss$SAMPLE_GROUP)
   boxplot_filename = paste("./plots/boxplot_",signature_name,sep='')
   boxplot_filename = paste(boxplot_filename,".pdf",sep='')
-  ggsave(boxplot_filename, width = 9, height = 9)
+  ggsave(boxplot_filename, width = 5, height = 5)
   
 
   ora_results = get_ora_results(gene_list)
@@ -356,7 +356,7 @@ plot_signature = function(gene_list, em_scaled, ss, signature_name)
   ggp = barplot(ora_results, showCategory=10) + labs(x = "") + my_theme + theme(legend.title = element_blank())
   barplot_filename = paste("./plots/barplot_",signature_name,sep='')
   barplot_filename = paste(barplot_filename,".pdf",sep='')
-  ggsave(barplot_filename, width = 9, height = 9)
+  ggsave(barplot_filename, width = 5, height = 5)
   
 }
                         

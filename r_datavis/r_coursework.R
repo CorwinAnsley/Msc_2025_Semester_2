@@ -63,65 +63,54 @@ ggsave("./plots/volcano_senes_vs_prolif.pdf", width = 9, height = 9)
 
 # Create mtd vs senes volcano plot
 ggp = volcano_plot_df_table(master, p_column = 'p.adj_mtd_vs_senes', log2Fold_column = 'log2fold_mtd_vs_senes',plot_title = 'SenesMtD vs Senes')
-ggsave("./plots/volcano_mtd_vs_senes.pdf", width = 9, height = 9))
+ggsave("./plots/volcano_mtd_vs_senes.pdf", width = 9, height = 9)
 
 # Create mtd vs prolif volcano plot
 ggp = volcano_plot_df_table(master, p_column = 'p.adj_mtd_vs_prolif', log2Fold_column = 'log2fold_mtd_vs_prolif',plot_title = 'SenesMtD vs Prolif')
-ggsave("./plots/volcano_mtd_vs_prolif.pdf", width = 9, height = 9))
+ggsave("./plots/volcano_mtd_vs_prolif.pdf", width = 9, height = 9)
 
 #### Figure 4 ####
 
-# Create heatmaps
-ggp = plot_heatmap(em_scaled_sig_senes_vs_prolif)
-ggsave("./plots/heatmap_senes_vs_prolif.pdf", width = 9, height = 9)
-
-ggp = plot_heatmap(em_scaled_sig_mtd_vs_senes)
-ggsave("./plots/heatmap_mtd_vs_senes.pdf", width = 9, height = 9)
-
-ggp = plot_heatmap(em_scaled_sig_mtd_vs_prolif)
-ggsave("./plots/heatmap_mtd_vs_prolif.pdf", width = 9, height = 9)
+# Create heatmap of all sig genes
 
 ggp = plot_heatmap(em_scaled_all_sig)
-ggp
 ggsave("./plots/heatmap_all.pdf", width = 9, height = 9)
 
 # Create heatmap rug
 ggp = heatmap_rug(ss$SAMPLE_GROUP)
 ggsave("./plots/heatmap_rug.pdf", width = 9, height = 1)
 
-# Get ORA results
-ora_results = get_ora_results(sig_genes_senes_vs_prolif)
-ora_results_table = convert_ora_results_to_table(ora_results)
-
-senes_vs_prolif_e_genes = get_enriched_genes_from_table(ora_results_table, 1)
-#senes_vs_prolif_e_genes = get_enriched_genes_ora(ora_results)
-
-senes_vs_prolif_e_genes_scaled = em_scaled[senes_vs_prolif_e_genes,]
-senes_vs_prolif_e_genes_scaled = na.omit(senes_vs_prolif_e_genes_scaled)
-
-ggp = boxplot_facets(senes_vs_prolif_e_genes_scaled, senes_vs_prolif_e_genes, ss$SAMPLE_GROUP, 5, 26, group_order=c('Prolif','Senes','Senes_MtD'))
-ggp
-
 #### Figure 5 ####
 
+# Get signature 1, up in senes vs prolif and up in mtd vs prolif
 signature_1 = unique(c(sig_genes_senes_vs_prolif, sig_genes_mtd_vs_prolif))
 signature_1 = master[signature_1,]
 signature_1 = subset(signature_1, log2fold_senes_vs_prolif > 0 & log2fold_mtd_vs_prolif > 0)
 signature_1 = row.names(signature_1)
-em_scaled_signature_1 = em_scaled[signature_1,]
 
-ggp = plot_heatmap(em_scaled_signature_1)
-ggp
+# Get signature 2, up in senes vs prolif and down in mtd vs senes
+signature_2 = unique(c(sig_genes_senes_vs_prolif, sig_genes_mtd_vs_senes))
+signature_2 = master[signature_2,]
+signature_2 = subset(signature_2, log2fold_senes_vs_prolif > 0 & log2fold_mtd_vs_senes < 0)
+signature_2 = row.names(signature_2)
 
-source("./omics_functions.R")
+# Get signature 3, down in senes vs prolif and down in mtd vs prolif
+signature_3 = unique(c(sig_genes_senes_vs_prolif, sig_genes_mtd_vs_prolif))
+signature_3 = master[signature_3,]
+signature_3 = subset(signature_3, log2fold_senes_vs_prolif < 0 & log2fold_mtd_vs_prolif < 0)
+signature_3 = row.names(signature_3)
 
+# Get signature 4, down in senes vs prolif and up in mtd vs senes
+signature_4 = unique(c(sig_genes_senes_vs_prolif, sig_genes_mtd_vs_senes))
+signature_4 = master[signature_4,]
+signature_4 = subset(signature_4, log2fold_senes_vs_prolif < 0 & log2fold_mtd_vs_senes > 0)
+signature_4 = row.names(signature_4)
+
+
+# Plot the signatures
 plot_signature(signature_1, em_scaled, ss, "signature_1")
+plot_signature(signature_2, em_scaled, ss, "signature_2")
+plot_signature(signature_3, em_scaled, ss, "signature_3")
+plot_signature(signature_4, em_scaled, ss, "signature_4")
 
-ora_results_s1 = get_ora_results(signature_1)
-ora_results_table_s1 = convert_ora_results_to_table(ora_results_s1)
 
-ggp = barplot(ora_results_s1, showCategory=10) + my_theme + theme(legend.title = element_blank())
-ggsave("./plots/barplot_signature_1.pdf", width = 9, height = 9)
-ggp
-
-  #row.names(subset(master, (sig_genes_senes_vs_prolif == TRUE &log2fold_1 > 0) & (sig_genes_mtd_vs_senes == TRUE & log2fold_2 > 0)))

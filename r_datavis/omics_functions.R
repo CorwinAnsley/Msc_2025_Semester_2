@@ -60,11 +60,11 @@ load_master_table = function(de_tables, de_names, em, annotations, symbol_column
 }
 
 # Returns a list of sig genes for given p (should be adjusted) and log2fold column
-get_sig_genes = function(master, p_column, log2fold_column) {
+get_sig_genes = function(master, p_column, log2fold_column, p_threshold = 0.001, log2fold_threshold=2) {
   master['p.adj'] = master[p_column]
   master['log2fold'] = master[log2fold_column]
-  master_sig = subset(master, p.adj < 0.05)
-  master_sig = subset(master, abs(log2fold) >1)
+  master_sig = subset(master, p.adj < p_threshold)
+  master_sig = subset(master, abs(log2fold) >log2fold_threshold)
   sig_genes = row.names(master_sig)
   return(sig_genes)
 }
@@ -112,24 +112,25 @@ metagene_boxplot = function(gene_frame, sample_groups)
   return(ggp)
 }
 
-volcano_plot_df_table = function(df, p_max = 0.05, 
-                                 log2Fold_threshold = 1, 
+volcano_plot_df_table = function(df,
                                  p_column = 'p.adj', 
                                  log2Fold_column = 'log2Fold', 
-                                 plot_title = '') {
+                                 plot_title = '',
+                                 p_threshold = 0.001, 
+                                 log2fold_threshold = 2) {
   # adding label to de tables for up and down regulated genes
   df$diffexpr = "NO" 
   df$symbol = row.names(df)
   df['log2fold'] = df[log2Fold_column]
   df['p.adj'] = df[p_column]
-  df$diffexpr[df[log2Fold_column] > log2Fold_threshold & df[p_column] < p_max] = "UP"
-  df$diffexpr[df[log2Fold_column] < -log2Fold_threshold  & df[p_column] < p_max] = "DOWN"
+  df$diffexpr[df[log2Fold_column] > log2fold_threshold & df[p_column] < p_threshold] = "UP"
+  df$diffexpr[df[log2Fold_column] < -log2fold_threshold  & df[p_column] < p_threshold] = "DOWN"
   
   sorted_order = order(df[,'p.adj'], decreasing=FALSE)
   df = df[sorted_order,]
   
-  df_sig_up = subset(df, p.adj < 0.05 & log2fold > 1)
-  df_sig_down = subset(df, p.adj < 0.05 & log2fold < -1)#
+  df_sig_up = subset(df, p.adj < p_threshold & log2fold > log2fold_threshold)
+  df_sig_down = subset(df, p.adj < p_threshold & log2fold < -log2fold_threshold)#
   
   df_up_top5 = df_sig_up[1:5,]
   df_down_top5 = df_sig_down[1:5,]
@@ -141,8 +142,8 @@ volcano_plot_df_table = function(df, p_max = 0.05,
     geom_text_repel(data = df_up_top5, max.overlaps=100, show.legend = FALSE) +
     geom_text_repel(data = df_down_top5, max.overlaps=100, show.legend = FALSE) +
     scale_color_manual(values=c("darkcyan", "black", "darkred"), labels=c("Down-regulated","Non-significant", "Up-regulated"),name="") +
-    geom_vline(xintercept=c(-log2Fold_threshold , log2Fold_threshold ), col="red") +
-    geom_hline(yintercept=-log10(p_max), col="red") +
+    geom_vline(xintercept=c(-log2fold_threshold , log2fold_threshold ), col="red") +
+    geom_hline(yintercept=-log10(p_threshold), col="red") +
     my_theme 
   
 
@@ -150,24 +151,6 @@ volcano_plot_df_table = function(df, p_max = 0.05,
   #return(df)
 }
 
-volvano_plot_facets = function(df, p_max = 0.05, 
-                               log2Fold_threshold = 1, 
-                               name_column = "symbol", 
-                               p_columns = c('p.adj'), 
-                               log2Fold_columns = c('log2Fold'), 
-                               symbol_labels = TRUE) {
-  
-  plot_df = data.frame(symbol=character(),
-                       group=character(),
-                       diffexpr=character(), 
-                       log2fold=numeric(),
-                       p.adj=numeric(),
-                       stringsAsFactors=FALSE)
-  
-  for (i in 1:length(p_columns)) {
-    
-  }
-}
 
 ma_plot_df_table = function(df, p_max = 0.05, log2Fold_threshold = 1, name_column = "symbol", p_column = 'p.adj', log2Fold_column = 'log2Fold', symbol_labels = TRUE) {
   # adding label to de tables for up and down regulated genes

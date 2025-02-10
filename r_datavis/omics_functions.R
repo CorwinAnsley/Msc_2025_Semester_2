@@ -37,18 +37,19 @@ my_theme = theme(
   axis.text.x = element_text(size=8),
   axis.text.y = element_text(size=8),
   axis.title.x = element_text(size=10),
-  axis.title.y = element_text(size=10)
+  axis.title.y = element_text(size=10),
+  legend.title = element_blank()
 ) + theme_minimal()
 
 # Returns a master table colating the data from provided em, annotations and list of de tables
-load_tables = function(de_tables, em, annotations, symbol_column = 'SYMBOL'){
+load_master_table = function(de_tables, de_names, em, annotations, symbol_column = 'SYMBOL'){
   master = merge(em, annotations,by.x=0,by.y=0)
   i = 1
   for (de in de_tables) {
     master = merge(master,de,by.x=1,by.y=0)
-    colnames(master)[which(names(master) == "p")] = paste("p_",as.character(i),sep='')
-    colnames(master)[which(names(master) == "p.adj")] = paste("p.adj_",as.character(i),sep='')
-    colnames(master)[which(names(master) == "log2fold")] = paste("log2fold_",as.character(i),sep='')
+    colnames(master)[which(names(master) == "p")] = paste("p_",de_names[i],sep='')
+    colnames(master)[which(names(master) == "p.adj")] = paste("p.adj_",de_names[i],sep='')
+    colnames(master)[which(names(master) == "log2fold")] = paste("log2fold_",de_names[i],sep='')
     i = i + 1
   }
   master = na.omit(master)
@@ -93,12 +94,29 @@ boxplot_facets = function(gene_frame, candidate_genes, sample_groups, nrow, ncol
   return(ggp)
 }
 
+metagene_boxplot = function(gene_frame, sample_groups)
+{
+  gene_frame = na.omit(gene_frame)
+  metagene = data.frame(colMeans(x=gene_frame))
+  metagene['sample_group'] = sample_groups
+  colnames(metagene) = c("expression", "sample_group")
+  #metagene = t(metagene)
+  #return(metagene)
+  
+  ggp = ggplot(metagene,aes(x=sample_group,y=expression, fill=sample_group)) +
+    geom_boxplot() +
+    scale_color_manual(values=as.vector(c("darkcyan", "black", "darkred")))+
+    xlab("") +
+    my_theme +
+    theme(legend.title = element_blank())
+  return(ggp)
+}
+
 volcano_plot_df_table = function(df, p_max = 0.05, 
                                  log2Fold_threshold = 1, 
-                                 name_column = "symbol", 
                                  p_column = 'p.adj', 
                                  log2Fold_column = 'log2Fold', 
-                                 symbol_labels = TRUE) {
+                                 plot_title = '') {
   # adding label to de tables for up and down regulated genes
   df$diffexpr = "NO" 
   df$symbol = row.names(df)
@@ -118,6 +136,7 @@ volcano_plot_df_table = function(df, p_max = 0.05,
 
   ggp = ggplot(data=df, aes(x=log2fold, y=-log10(p.adj), col=diffexpr, label=symbol)) + 
     geom_point() +
+    labs(title=plot_title) +
     #theme_minimal() +
     geom_text_repel(data = df_up_top5, max.overlaps=100, show.legend = FALSE) +
     geom_text_repel(data = df_down_top5, max.overlaps=100, show.legend = FALSE) +
@@ -189,7 +208,8 @@ pca_graph = function(em_scaled,ss){
     scale_color_manual(values=as.vector(c("darkcyan", "black", "darkred"))) +
     labs(color = "Sample Group\n") +
     xlab(x_axis_label) +
-    ylab(y_axis_label)
+    ylab(y_axis_label) +
+    my_theme
   
   return(ggp)
 }
@@ -313,3 +333,30 @@ get_enriched_genes_from_table = function(results_table, row_num){
   return(candidate_genes)
 }
 
+plot_signature = function(gene_list, em_scaled, ss, signature_name)
+{
+  em_scaled_signature_1 = em_scaled[gene_list,]
+  
+  ggp = plot_heatmap(em_scaled_signature_1)
+  heatmap_filename = paste("./plots/heatmap_",signature_name,sep='')
+  heatmap_filename = paste(heatmap_filename,".pdf",sep='')
+  ggsave(heatmap_filename, width = 9, height = 9)
+  
+  #ggp = make_metagene_boxplot(gene_list, em_scaled, groups)
+  #save_plot(ggp, …)
+  
+  ggp = metagene_boxplot(em_scaled_signature_1, ss$SAMPLE_GROUP)
+  boxplot_filename = paste("./plots/boxplot_",signature_name,sep='')
+  boxplot_filename = paste(boxplot_filename,".pdf",sep='')
+  ggsave(boxplot_filename, width = 9, height = 9)
+  
+
+  ora_results = get_ora_results(gene_list)
+  ora_results_table = convert_ora_results_to_table(ora_results)
+  ggp = barplot(ora_results, showCategory=10) + labs(x = "") + my_theme + theme(legend.title = element_blank())
+  barplot_filename = paste("./plots/barplot_",signature_name,sep='')
+  barplot_filename = paste(barplot_filename,".pdf",sep='')
+  ggsave(barplot_filename, width = 9, height = 9)
+  
+}
+                        

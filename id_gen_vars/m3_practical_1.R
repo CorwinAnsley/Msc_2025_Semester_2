@@ -21,8 +21,8 @@ for (col in colnames(geno_data)) {
 }
 
 for (col in colnames(geno_data)) {
-  g_frame = geno_data['MSNP3']
-  colnames(g_frame) = c(loc)
+  g_frame = geno_data[col]
+  colnames(g_frame) = c('loc')
   Geno = genotype(g_frame$loc, sep='')
   print(summary(Geno))
 }
@@ -32,3 +32,9 @@ test_frame1 = geno_data['MSNP3']#as.factor(as.vector(geno_data['MSNP3']))
 
 Geno = genotype(geno_data$MSNP3, sep='')
 summary(Geno)
+
+MSNP3geno = genotype(geno_data$MSNP3, sep="") 
+
+HWE.chisq(MSNP3geno) 
+
+HWE.exact(MSNP3geno) 

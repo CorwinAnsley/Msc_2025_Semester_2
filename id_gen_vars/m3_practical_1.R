@@ -37,4 +37,13 @@ MSNP3geno = genotype(geno_data$MSNP3, sep="")
 
 HWE.chisq(MSNP3geno) 
 
-HWE.exact(MSNP3geno) 
+hwe_results = HWE.exact(MSNP3geno)
+hwe_results$p.value
+
+for (col in colnames(geno_data)) {
+  g_frame = geno_data[col]
+  colnames(g_frame) = c('loc')
+  Geno = genotype(g_frame$loc, sep='')
+  hwe_results = HWE.exact(MSNP3geno)
+  hwe_results$p.value
+  }

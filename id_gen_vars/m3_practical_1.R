@@ -65,6 +65,7 @@ hwe_results = HWE.exact(MSNP3geno)
 hwe_results$p.value
 
 obs_counts = table(geno_data['MSNP3'])
+obs_counts
 #obs_counts = table(c('ct','tt','ct','tt','ct','ct'))
 length(obs_counts)
 names(obs_counts)[1]
@@ -74,4 +75,15 @@ obs_counts[[2]]
 
 n_obs = sum(obs_counts)
 
-freq_ma = (2 * obs_counts)
+freq_ma = (2*obs_counts[[1]] + obs_counts[[2]])/(2*n_obs)
+
+#(2*ObsCount[[1]] + ObsCount[[2]])/ (2*Nobs)
+
+ExpCount = c(n_obs*(freq_ma)^2, 2*n_obs*freq_ma*(1-freq_ma), n_obs*(1-freq_ma)^2) 
+ExpCount
+
+ChiSqStat <- sum((obs_counts - ExpCount)^2/ExpCount) 
+ChiSqStat 
+
+SigThresholdStat <- qchisq(1-0.05,df=1) 
+SigThresholdStat 

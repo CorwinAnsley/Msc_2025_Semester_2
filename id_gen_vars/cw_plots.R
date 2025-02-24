@@ -3,10 +3,13 @@ install.packages('qqman')
 library(qqman)
 
 # Load data
-chrom = read.table("./cw_data/cw_output_qc__chr_1.assoc.linear" , header = T) 
+chrom1_linear = read.table("./cw_data/cw_output_qc__chr_1.assoc.linear" , header = T)
+chrom2_linear = read.table("./cw_data/cw_output_qc__chr_2.assoc.linear" , header = T) 
 
+chrom1_logistic = read.table("./cw_data/cw_output_dichot_qc__chr_1.assoc.logistic" , header = T)
+chrom2_logistic = read.table("./cw_data/cw_output_dichot_qc__chr_2.assoc.logistic" , header = T) 
 # Make manhattan plot
-plot(chrom$BP, -log10(chrom$P))
+#plot(chrom$BP, -log10(chrom$P))
 
 # Get only genome wide significant hita
 

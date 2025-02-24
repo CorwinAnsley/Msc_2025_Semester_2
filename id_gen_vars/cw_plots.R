@@ -1,4 +1,4 @@
-install.packages('qqman')
+#install.packages('qqman')
 
 library(qqman)
 
@@ -13,9 +13,16 @@ chrom2_logistic = read.table("./cw_data/cw_output_dichot_qc__chr_2.assoc.logisti
 
 # Get only genome wide significant hita
 
-sig_results = chrom[which(chrom$P <= 5e-8),]
+#sig_results = chrom[which(chrom$P <= 5e-8),]
 
 # Plot with qqman
 
+png('./plots/manhattan_logistic_2.png')
 manhattan(chrom)
+# make plot
+dev.off()
+
+png('./plots/qq_logistic_2.png')
 qq(chrom$P)
+# make plot
+dev.off()

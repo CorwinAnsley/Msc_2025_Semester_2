@@ -1,3 +1,4 @@
+#### Install and load dependencies ####
 #install.packages("ggplot2")
 #install.packages("ggrepel")
 
@@ -13,6 +14,8 @@
 #BiocManager::install("org.Mm.eg.db")
 
 #BiocManager::install("STRINGdb")
+
+#install.packages('stringr')
 
 library(ggplot2)
 library(ggrepel)
@@ -32,6 +35,11 @@ library(STRINGdb)
 library(clusterProfiler)
 library(org.Mm.eg.db)
 
+library('stringr')
+
+#### Set Theme ####
+
+# Custom theme for all plots
 my_theme = theme(
   plot.title = element_text(size=30),
   axis.text.x = element_text(size=12),
@@ -41,10 +49,13 @@ my_theme = theme(
   legend.title = element_blank()
 ) + theme_minimal()
 
+#### Data functions ####
+
 # Returns a master table colating the data from provided em, annotations and list of de tables
 load_master_table = function(de_tables, de_names, em, annotations, symbol_column = 'SYMBOL'){
   master = merge(em, annotations,by.x=0,by.y=0)
   i = 1
+  # Add p, p.adj and log2fold for all de tables
   for (de in de_tables) {
     master = merge(master,de,by.x=1,by.y=0)
     colnames(master)[which(names(master) == "p")] = paste("p_",de_names[i],sep='')
@@ -52,6 +63,8 @@ load_master_table = function(de_tables, de_names, em, annotations, symbol_column
     colnames(master)[which(names(master) == "log2fold")] = paste("log2fold_",de_names[i],sep='')
     i = i + 1
   }
+  
+  # Clean up the master table and return it
   master = na.omit(master)
   row.names(master) = master[,symbol_column]
   names(master)[1] = 'ensemble_id'
@@ -83,6 +96,8 @@ get_gene_data = function(gene, gene_frame, sample_groups, group_order=c() ) {
   return (gene_data)
 }
 
+#### Boxplot functions ####
+# Create facets of box plots
 boxplot_facets = function(gene_frame, candidate_genes, sample_groups, nrow, ncol, group_order=c()){
   genes_to_plot = get_gene_data(candidate_genes,gene_frame,sample_groups,group_order=group_order)
   top_gene_data_m = melt(genes_to_plot, id.vars='sample_group')
@@ -94,6 +109,7 @@ boxplot_facets = function(gene_frame, candidate_genes, sample_groups, nrow, ncol
   return(ggp)
 }
 
+# Create a metagene by averaging out columns and return a boxplot of its expression
 metagene_boxplot = function(gene_frame, sample_groups)
 {
   gene_frame = na.omit(gene_frame)
@@ -112,6 +128,9 @@ metagene_boxplot = function(gene_frame, sample_groups)
   return(ggp)
 }
 
+#### General Plots ####
+
+# Create a volcano plot
 volcano_plot_df_table = function(df,
                                  p_column = 'p.adj', 
                                  log2Fold_column = 'log2Fold', 
@@ -151,7 +170,7 @@ volcano_plot_df_table = function(df,
   #return(df)
 }
 
-
+# Create ma plot
 ma_plot_df_table = function(df, p_max = 0.05, log2Fold_threshold = 1, name_column = "symbol", p_column = 'p.adj', log2Fold_column = 'log2Fold', symbol_labels = TRUE) {
   # adding label to de tables for up and down regulated genes
   df$diffexpr = "NO" 
@@ -175,6 +194,7 @@ ma_plot_df_table = function(df, p_max = 0.05, log2Fold_threshold = 1, name_colum
   ggp
 }
 
+# Create pca plot
 pca_graph = function(em_scaled,ss){
   pca = prcomp(t(as.matrix(sapply(em_scaled,as.numeric))))
   pca_coordinates = data.frame(pca$x)
@@ -197,11 +217,13 @@ pca_graph = function(em_scaled,ss){
   return(ggp)
 }
 
+# Create expression density graph
 expr_density_graph = function(table,sample){
   ggp = ggplot(table, aes(x = log10(sample+0.01))) + 
     geom_density(colour ='red', fill='coral', linewidth = 0.5, alpha = 0.5)
 }
 
+# Create facets of expression density graphs
 expr_density_facets = function(table, nrow, ncol){
   table_melt = melt(table)
   ggp = ggplot(table_melt, aes(x = log10(value+0.01))) + 
@@ -214,6 +236,9 @@ expr_density_facets = function(table, nrow, ncol){
   return(ggp)
 }
 
+#### Heatmap functions ####
+
+# plot a heatmap
 plot_heatmap = function(em_table, dist_method = "spearman", cluster_method = "average", reorder_func = "average", by_x = FALSE){
   em_taBLE = na.omit(em_table)
   
@@ -251,11 +276,12 @@ plot_heatmap = function(em_table, dist_method = "spearman", cluster_method = "av
     ylab("") +
     xlab("") +
     my_theme +
-    theme(axis.text.y = element_blank(), axis.ticks=element_blank(), legend.title = element_blank(),
+    theme(axis.text.y = element_blank(), axis.ticks=element_blank(), legend.title = element_blank(),# axis.text.x = element_text(size=8),
           legend.spacing.x = unit(0.25, 'cm'))
   return(ggp)
 }
 
+#Create a rug for a heatmap
 heatmap_rug = function(sample_groups){
   # rug for continuous variable
   groups_data = as.matrix(as.numeric(as.factor(sample_groups)))
@@ -277,8 +303,11 @@ heatmap_rug = function(sample_groups){
   return(ggp)
 }
 
+#### Pathway and signature analysis functions ####
+
 # Returns the results of an ORA on given list of genes
 get_ora_results = function(genes){
+  genes = stringr::str_to_title(genes) 
   # convert gene symbols to entrezid
   genes_entrez = bitr(genes, fromType = "SYMBOL", toType = "ENTREZID", OrgDb = org.Mm.eg.db)
   
@@ -316,24 +345,28 @@ get_enriched_genes_from_table = function(results_table, row_num){
   return(candidate_genes)
 }
 
+# Creates a heatmap, a metagene boxplot and ora pathway analysis from a list of genes or signature
 plot_signature = function(gene_list, em_scaled, ss, signature_name)
 {
-  em_scaled_signature_1 = em_scaled[gene_list,]
+  # get a subset of expression data from the list of genes
+  em_scaled_signature = em_scaled[gene_list,]
   
-  ggp = plot_heatmap(em_scaled_signature_1)
+  # Plot a heatmap
+  ggp = plot_heatmap(em_scaled_signature)
   heatmap_filename = paste("./plots/heatmap_",signature_name,sep='')
   heatmap_filename = paste(heatmap_filename,".pdf",sep='')
-  ggsave(heatmap_filename, width = 5, height = 5)
+  ggsave(heatmap_filename, width = 9, height = 9)
   
   #ggp = make_metagene_boxplot(gene_list, em_scaled, groups)
   #save_plot(ggp, …)
   
-  ggp = metagene_boxplot(em_scaled_signature_1, ss$SAMPLE_GROUP)
+  # Plot a metagene boxplot
+  ggp = metagene_boxplot(em_scaled_signature, ss$SAMPLE_GROUP)
   boxplot_filename = paste("./plots/boxplot_",signature_name,sep='')
   boxplot_filename = paste(boxplot_filename,".pdf",sep='')
   ggsave(boxplot_filename, width = 5, height = 5)
   
-
+  # Run pathway analysis and create barplot
   ora_results = get_ora_results(gene_list)
   ora_results_table = convert_ora_results_to_table(ora_results)
   ggp = barplot(ora_results, showCategory=10) + labs(x = "") + my_theme + theme(legend.title = element_blank())

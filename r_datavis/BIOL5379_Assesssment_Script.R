@@ -112,5 +112,3 @@ plot_signature(signature_1, em_scaled, ss, "signature_1")
 plot_signature(signature_2, em_scaled, ss, "signature_2")
 plot_signature(signature_3, em_scaled, ss, "signature_3")
 plot_signature(signature_4, em_scaled, ss, "signature_4")
-
-

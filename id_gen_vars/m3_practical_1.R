@@ -27,14 +27,51 @@ for (col in colnames(geno_data)) {
   print(summary(Geno))
 }
 
-test_frame = geno_data$MSNP3
-test_frame1 = geno_data['MSNP3']#as.factor(as.vector(geno_data['MSNP3']))
+
+
+get_nonhwe_snps = function(geno_data){
+  snps = colnames(geno_data)
+  nonhwe_snps = vector('list',length(snps))
+  i = 1
+  while (i <= length(snps)) {
+    print(i)
+    col = snps[i]
+    print(col)
+    
+    g_frame = geno_data[col]
+    colnames(g_frame) = c('loc')
+    Geno = genotype(g_frame$loc, sep='')
+    hwe_results = HWE.exact(Geno)
+ i + 1
+  }
+  return(nonhwe_snps)
+}
+
+nonhwe_snps = get_nonhwe_snps(geno_data)
+
+
+
+#test_frame = geno_data$MSNP2
+test_table = table(geno_data['MSNP2'])#as.factor(as.vector(geno_data['MSNP3']))
 
 Geno = genotype(geno_data$MSNP3, sep='')
 summary(Geno)
 
-MSNP3geno = genotype(geno_data$MSNP3, sep="") 
+MSNP2geno = genotype(geno_data$MSNP2, sep="") 
 
-HWE.chisq(MSNP3geno) 
+HWE.chisq(MSNP2geno) 
 
-HWE.exact(MSNP3geno) 
+hwe_results = HWE.exact(MSNP3geno)
+hwe_results$p.value
+
+obs_counts = table(geno_data['MSNP3'])
+#obs_counts = table(c('ct','tt','ct','tt','ct','ct'))
+length(obs_counts)
+names(obs_counts)[1]
+
+obs_counts[[1]]
+obs_counts[[2]]
+
+n_obs = sum(obs_counts)
+
+freq_ma = (2 * obs_counts)

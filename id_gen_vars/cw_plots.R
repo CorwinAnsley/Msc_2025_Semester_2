@@ -17,12 +17,24 @@ chrom2_logistic = read.table("./cw_data/cw_output_dichot_qc__chr_2.assoc.logisti
 
 # Plot with qqman
 
+# Logistic 1
+png('./plots/manhattan_logistic_1.png')
+manhattan(chrom1_logistic)
+# make plot
+dev.off()
+
+png('./plots/qq_logistic_1.png')
+qq(chrom1_logistic$P)
+# make plot
+dev.off()
+
+# Logistic 2
 png('./plots/manhattan_logistic_2.png')
-manhattan(chrom)
+manhattan(chrom2_logistic)
 # make plot
 dev.off()
 
 png('./plots/qq_logistic_2.png')
-qq(chrom$P)
+qq(chrom2_logistic$P)
 # make plot
 dev.off()

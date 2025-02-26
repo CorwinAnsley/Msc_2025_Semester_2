@@ -38,3 +38,6 @@ png('./plots/qq_logistic_2.png')
 qq(chrom2_logistic$P)
 # make plot
 dev.off()
+
+# Q chr1
+sig_results_q_c1 = chrom1_linear[which(chrom1_linear$P <= 5e-8),]
